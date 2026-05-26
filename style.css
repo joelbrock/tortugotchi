@@ -1,0 +1,1993 @@
+/* ==========================================================================
+   DESIGN TOKENS & SYSTEM ROOT
+   ========================================================================== */
+:root {
+  --font-primary: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* Color Palette */
+  --color-bg-dark: #070b12;
+  --color-bg-light: #16222f;
+  
+  --color-primary: #00b4d8;
+  --color-primary-dark: #0077b6;
+  --color-secondary: #52b788;
+  --color-accent: #e9c46a;
+  
+  --color-danger: #ff5c8a;
+  --color-danger-dark: #ff0054;
+  --color-warning: #f4a261;
+  --color-warning-dark: #e76f51;
+  
+  --color-text: #f8f9fa;
+  --color-text-muted: #a0aec0;
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(22, 34, 47, 0.7);
+  --glass-bg-accent: rgba(0, 180, 216, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-accent: rgba(0, 180, 216, 0.3);
+  --glass-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.4);
+  --glass-blur: blur(12px) saturate(180%);
+
+  /* Animation Timers */
+  --transition-speed: 0.3s;
+}
+
+/* ==========================================================================
+   BASE & LAYOUT STYLES (MOBILE-FIRST FRAME)
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-bg-dark);
+  color: var(--color-text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Standard Mobile Frame on Desktop, full screen on Mobile */
+.app-frame {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--color-bg-dark);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (min-width: 481px) {
+  .app-frame {
+    height: 90vh;
+    max-height: 850px;
+    border-radius: 28px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ==========================================================================
+   GAME SCREENS STRUCTURE
+   ========================================================================== */
+.game-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease-in-out;
+  z-index: 1;
+}
+
+.game-screen.active {
+  display: flex;
+  opacity: 1;
+  z-index: 10;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   GLASSMORPHISM & GENERAL STYLES
+   ========================================================================== */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  padding: 20px;
+}
+
+.text-center { text-align: center; }
+.text-accent { color: var(--color-accent); }
+.text-success { color: var(--color-secondary); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-white { color: #ffffff; }
+
+/* Buttons */
+button {
+  font-family: var(--font-primary);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: #ffffff;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-primary-mini {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.btn-secondary-text {
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.btn-text {
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  padding: 5px;
+}
+
+.btn-close-text {
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close-text:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-pulse {
+  animation: pulse-button 2s infinite;
+}
+
+@keyframes pulse-button {
+  0% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3); }
+  50% { transform: scale(1.03); box-shadow: 0 4px 25px rgba(0, 180, 216, 0.6); }
+  100% { transform: scale(1); box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3); }
+}
+
+/* Screen HUD general */
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 20px 15px;
+  z-index: 10;
+}
+
+.hud-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hud-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   1. START / ONBOARDING SCREEN STYLING
+   ========================================================================== */
+#screen-start {
+  background: linear-gradient(135deg, #0b132b, #1c2541, #070b12);
+  justify-content: space-between;
+  padding: 40px 20px 20px;
+  overflow-y: auto;
+}
+
+.header-logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo-turtle-svg {
+  width: 90px;
+  height: 90px;
+  animation: logo-swim 4s ease-in-out infinite;
+}
+
+@keyframes logo-swim {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+.app-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-text), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: 10px;
+}
+
+.app-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 2px;
+}
+
+.onboard-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.intro-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.intro-action {
+  font-size: 0.9rem;
+}
+
+.species-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.species-option input[type="radio"] {
+  display: none;
+}
+
+.species-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-speed) ease;
+}
+
+.species-icon {
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-speed) ease;
+}
+
+.species-details h3 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.species-diet {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.species-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+/* Checked styling for Species Selection */
+.species-option input[type="radio"]:checked + .species-card {
+  background: var(--glass-bg-accent);
+  border-color: var(--glass-border-accent);
+}
+
+.species-option input[type="radio"]:checked + .species-card .species-icon {
+  background: var(--color-primary);
+  transform: scale(1.08);
+}
+
+/* ==========================================================================
+   2. BEACH & NEST STAGE STYLING
+   ========================================================================== */
+#screen-beach {
+  background: linear-gradient(to bottom, #070913 0%, #16182c 40%, #2f2a41 80%, #6e483b 100%);
+}
+
+.beach-area {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  cursor: pointer;
+  /* Sandy shore look */
+  background: radial-gradient(circle at bottom, #b48a6a 0%, #3e334a 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Old simple wave bar replaced by .tide-layer SVG; keep keyframe for legacy refs */
+@keyframes beach-wave {
+  0% { transform: translateY(-5px) scaleY(0.9); opacity: 0.7; }
+  100% { transform: translateY(5px) scaleY(1.1); opacity: 0.9; }
+}
+
+/* Nest */
+.nest-site {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 5;
+}
+
+.nest-mound {
+  width: 80px;
+  height: 35px;
+  background: #926d52;
+  border-radius: 50%;
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.4), 0 4px 10px rgba(0,0,0,0.3);
+  margin: 0 auto;
+}
+
+.nest-label {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-top: 5px;
+}
+
+.eggs-visual {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.egg {
+  width: 14px;
+  height: 16px;
+  background: #fdfdfd;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow: inset -2px -2px 4px rgba(0,0,0,0.1), 1px 1px 2px rgba(0,0,0,0.2);
+  transform: rotate(15deg);
+}
+
+.egg:nth-child(2) { transform: rotate(-25deg) translate(3px, -3px); }
+.egg:nth-child(3) { transform: rotate(5deg) translate(-3px, 2px); }
+
+/* Beach Trash Can Zone */
+.beach-trash-can-zone {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: var(--glass-shadow);
+  transition: all var(--transition-speed) ease;
+}
+
+.beach-trash-can-zone.drag-hover {
+  transform: scale(1.15);
+  border-color: var(--color-secondary);
+  background: rgba(82, 183, 136, 0.15);
+}
+
+.trash-icon { font-size: 1.4rem; }
+.trash-label { font-size: 0.6rem; color: var(--color-text-muted); font-weight: 600; text-align: center; }
+
+/* Beach tutorial and feedback */
+.game-tutorial-bubble {
+  position: absolute;
+  top: 50px;
+  left: 20px;
+  right: 20px;
+  background: rgba(11, 19, 43, 0.95);
+  border: 1px solid var(--glass-border-accent);
+  border-radius: 12px;
+  padding: 12px 15px;
+  z-index: 15;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounce-in {
+  0% { transform: translateY(20px) scale(0.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.game-tutorial-bubble p {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.beach-footer {
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+}
+
+.progress-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-bar-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.1s linear;
+}
+
+.progress-bar-fill.warning {
+  background: var(--color-warning);
+}
+
+.action-feedback-text {
+  font-size: 0.85rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-text);
+  min-height: 20px;
+}
+
+/* Light Pollution warnings */
+.light-alert-card {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  right: 20px;
+  background: rgba(231, 111, 81, 0.95);
+  border-radius: 10px;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 15;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.light-warning-icon { font-size: 1.4rem; }
+.light-warning-text h5 { font-size: 0.85rem; color: #ffffff; }
+.light-warning-text p { font-size: 0.75rem; color: rgba(255,255,255,0.9); }
+
+/* Draggable / Clickable Hazards */
+.beach-trash-item {
+  position: absolute;
+  font-size: 1.8rem;
+  cursor: grab;
+  z-index: 8;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  transition: transform 0.1s ease;
+}
+
+.beach-trash-item:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+}
+
+.beach-hole-item {
+  position: absolute;
+  width: 44px;
+  height: 25px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #5a4231;
+  border-radius: 50%;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+  cursor: pointer;
+  z-index: 7;
+}
+
+.beach-hole-item.filling {
+  transform: scale(0.6);
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.beach-predator-item {
+  position: absolute;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 9;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  transition: all 0.3s ease;
+}
+
+.predator-scared {
+  transform: scale(1.4) translateY(-30px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.beach-light-source {
+  position: absolute;
+  top: 60px;
+  width: 50px;
+  height: 90px;
+  cursor: pointer;
+  z-index: 8;
+}
+
+.light-pole {
+  position: absolute;
+  left: 22px;
+  top: 15px;
+  width: 6px;
+  height: 75px;
+  background: #334155;
+}
+
+.light-bulb {
+  position: absolute;
+  left: 15px;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fef08a;
+  box-shadow: 0 0 15px #fef08a;
+}
+
+.light-beam {
+  position: absolute;
+  top: 20px;
+  left: -50px;
+  width: 150px;
+  height: 300px;
+  background: fill;
+  background: linear-gradient(to bottom, rgba(254, 240, 138, 0.4), transparent);
+  clip-path: polygon(33% 0%, 66% 0%, 100% 100%, 0% 100%);
+  pointer-events: none;
+}
+
+.beach-light-source.off .light-bulb {
+  background: #64748b;
+  box-shadow: none;
+}
+
+.beach-light-source.off .light-beam {
+  display: none;
+}
+
+/* Hatchling crawling */
+.hatchling-crawler {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 6;
+  transition: left 0.1s linear, top 0.1s linear;
+}
+
+.hatchling-crawler-svg {
+  width: 100%;
+  height: 100%;
+  animation: hatchling-waddle 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes hatchling-waddle {
+  0% { transform: rotate(-5deg); }
+  100% { transform: rotate(5deg); }
+}
+
+/* ==========================================================================
+   3. OCEAN TAMAGOTCHI CARE STAGE STYLING
+   ========================================================================== */
+#screen-ocean {
+  background: linear-gradient(180deg, #102a43 0%, #014f86 40%, #012a4a 100%);
+}
+
+.ocean-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 10px;
+  z-index: 10;
+}
+
+.turtle-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#turtle-avatar-indicator {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.turtle-identity h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.species-subtext {
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-edit-icon {
+  background: transparent;
+  font-size: 0.9rem;
+  opacity: 0.6;
+  padding: 5px;
+}
+
+.btn-edit-icon:hover { opacity: 1; }
+
+.turtle-age-score {
+  text-align: right;
+}
+
+/* HUD Stat Bars */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 20px 10px;
+  z-index: 10;
+}
+
+.stat-bar-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.stat-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--color-text-muted);
+}
+
+.stat-val {
+  color: var(--color-text);
+  font-weight: 800;
+}
+
+.stat-progress-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width var(--transition-speed) ease;
+}
+
+.stat-progress-fill.health { background: var(--color-danger); }
+.stat-progress-fill.hunger { background: var(--color-primary); }
+.stat-progress-fill.joy { background: var(--color-secondary); }
+.stat-progress-fill.clean { background: var(--color-accent); }
+
+/* Playpen Area */
+.ocean-playpen-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ocean-area {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, rgba(1, 79, 134, 0.5) 0%, rgba(1, 42, 74, 0.8) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Light rays from top */
+.ocean-light-rays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 20px, transparent 20px, transparent 40px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 20px, transparent 20px, transparent 40px);
+  pointer-events: none;
+  opacity: 0.4;
+  animation: ray-shimmer 15s linear infinite;
+}
+
+@keyframes ray-shimmer {
+  0% { transform: scale(1.0) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(2deg); }
+  100% { transform: scale(1.0) rotate(0deg); }
+}
+
+/* Water floating dust */
+.ocean-water-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Sea Turtle SVG Container & Animations */
+.sea-turtle-sprite {
+  width: 180px;
+  height: 180px;
+  z-index: 5;
+  filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.5));
+  animation: swim-body 5s ease-in-out infinite;
+  transform-origin: center center;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Keyframes for full body movement */
+@keyframes swim-body {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(8px) rotate(-1deg); }
+}
+
+/* Flippers animation */
+.fl-left {
+  transform-origin: 60px 100px;
+  animation: swim-flipper-l 2.5s ease-in-out infinite;
+}
+
+.fl-right {
+  transform-origin: 140px 100px;
+  animation: swim-flipper-r 2.5s ease-in-out infinite;
+}
+
+.fl-back-left {
+  transform-origin: 80px 150px;
+  animation: steer-flipper-l 5s ease-in-out infinite;
+}
+
+.fl-back-right {
+  transform-origin: 120px 150px;
+  animation: steer-flipper-r 5s ease-in-out infinite;
+}
+
+@keyframes swim-flipper-l {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-25deg) translateY(-2px); }
+}
+
+@keyframes swim-flipper-r {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(25deg) translateY(-2px); }
+}
+
+@keyframes steer-flipper-l {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
+}
+
+@keyframes steer-flipper-r {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+/* Thought bubble */
+.thought-bubble {
+  position: absolute;
+  top: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #121212;
+  border-radius: 15px;
+  padding: 8px 15px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 10;
+  pointer-events: none;
+  animation: float-bubble 4s ease-in-out infinite;
+}
+
+.thought-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+@keyframes float-bubble {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Dialog screens shake for damage */
+.shake-element {
+  animation: screen-shake 0.4s ease-in-out;
+}
+
+@keyframes screen-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* Floating food or trash items in the ocean */
+.floating-item {
+  position: absolute;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 6;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.floating-item.eating {
+  transform: scale(0.1) rotate(180deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Shell Cleaning Game overlay */
+.cleaning-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 79, 134, 0.2);
+  z-index: 8;
+  pointer-events: auto;
+}
+
+.cleaning-instructions {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  right: 20px;
+  text-align: center;
+  background: rgba(11, 19, 43, 0.85);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.interactive-brush {
+  position: absolute;
+  width: 64px;
+  height: 36px;
+  background: var(--color-accent);
+  color: #121212;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: grab;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  touch-action: none;
+}
+
+.interactive-brush:active { cursor: grabbing; }
+
+/* QTE overlays (Nets, Boats, Sharks) */
+.qte-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(19, 15, 38, 0.85);
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.qte-warning-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-danger);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  animation: flash-red 1s infinite alternate;
+}
+
+@keyframes flash-red {
+  0% { text-shadow: 0 0 5px rgba(255,92,138,0.2); }
+  100% { text-shadow: 0 0 20px rgba(255,92,138,0.9); }
+}
+
+.qte-instructions {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.swipe-progress-container {
+  width: 80%;
+  height: 12px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.swipe-progress-fill {
+  height: 100%;
+  background: var(--color-secondary);
+  transition: width 0.1s ease;
+}
+
+.net-grid-graphics {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 1.2rem;
+  border-radius: 16px;
+  width: 80%;
+}
+
+.shark-btn-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.shark-graphic {
+  position: absolute;
+  font-size: 4.5rem;
+  z-index: 2;
+  transition: left 0.1s linear, top 0.1s linear;
+  animation: shark-swim-anim 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes shark-swim-anim {
+  0% { transform: scaleX(-1) rotate(-3deg); }
+  100% { transform: scaleX(-1) rotate(3deg); }
+}
+
+/* Ocean Footer Drawer Controls */
+.ocean-footer {
+  padding: 15px 20px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.action-btn {
+  flex: 1;
+  height: 70px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.action-btn:hover, .action-btn.active {
+  background: var(--glass-bg-accent);
+  border-color: var(--glass-border-accent);
+}
+
+.btn-emoji { font-size: 1.5rem; }
+.btn-lbl { font-size: 0.75rem; font-weight: 600; color: var(--color-text-muted); }
+.action-btn:hover .btn-lbl, .action-btn.active .btn-lbl { color: var(--color-text); }
+
+.drawer-panel {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slide-up-drawer 0.25s ease-out;
+}
+
+@keyframes slide-up-drawer {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.drawer-panel h4 {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.food-options-row {
+  display: flex;
+  gap: 8px;
+}
+
+.food-btn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--color-text);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.food-btn:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary);
+}
+
+.drawer-warning {
+  font-size: 0.7rem;
+  color: var(--color-warning);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   4. BEACHING / TOURIST SHIELD EVENT STYLING
+   ========================================================================== */
+#screen-beaching {
+  background: linear-gradient(180deg, #1c2a38 0%, #3e5066 40%, #c49a75 100%);
+}
+
+.warning-bg {
+  background: linear-gradient(90deg, #9b2c2c, #742a2a);
+}
+
+.beaching-area {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #d8b28f 0%, #a77c57 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.beached-turtle-resting {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.resting-turtle-svg {
+  width: 90px;
+  height: 90px;
+  animation: resting-breathing 4s ease-in-out infinite;
+}
+
+/* Very slow, calm breathing — sea turtles rest motionless on the sand */
+.resting-turtle-svg {
+  animation: resting-breathing 9s ease-in-out infinite !important;
+}
+@keyframes resting-breathing {
+  0%, 100% { transform: scale(1.0) translateY(0); }
+  50% { transform: scale(1.035) translateY(-1px); }
+}
+
+/* 10-foot boundary rings */
+.turtle-zone-ring {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 3px dashed rgba(229, 62, 62, 0.6);
+  background: rgba(229, 62, 62, 0.05);
+  animation: pulse-ring 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+.safe-zone-label {
+  position: absolute;
+  top: -24px;
+  width: 150px;
+  text-align: center;
+  background: rgba(229, 62, 62, 0.9);
+  color: #ffffff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+/* Tourist Sprites */
+.tourist-sprite {
+  position: absolute;
+  width: 50px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 7;
+  transition: left 0.1s linear, top 0.1s linear, transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.tourist-avatar {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+
+.tourist-camera-flash {
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 20px 10px #ffffff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.flash-active {
+  animation: flash-trigger 0.8s ease-out;
+}
+
+@keyframes flash-trigger {
+  0% { opacity: 0; transform: scale(0.5); }
+  10% { opacity: 1; transform: scale(1.5); }
+  25% { opacity: 0; }
+  50% { opacity: 1; transform: scale(1.5); }
+  65% { opacity: 0; }
+}
+
+.beaching-instructions-card {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  right: 20px;
+  background: rgba(11, 19, 43, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  z-index: 10;
+  box-shadow: var(--glass-shadow);
+  text-align: center;
+}
+
+.beaching-instructions-card p {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.beaching-footer {
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 10;
+}
+
+.educational-pop-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid var(--color-primary);
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 52px;
+}
+
+.fact-icon { font-size: 1.2rem; }
+.fact-text { font-size: 0.75rem; line-height: 1.4; color: var(--color-text); }
+
+/* ==========================================================================
+   MODALS AND OVERLAYS
+   ========================================================================== */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 400px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  animation: modal-zoom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modal-zoom {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.small-modal {
+  max-height: 350px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 10px;
+}
+
+.modal-header h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.scrollable-content {
+  padding-right: 5px;
+}
+
+/* Custom Scrollbar for Modal content */
+.scrollable-content::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollable-content::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.02);
+}
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.modal-body h3 {
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-top: 5px;
+}
+
+.modal-body p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.citation-box {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-top: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.citation-box p {
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.text-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: var(--font-primary);
+  width: 100%;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.gameover-stats {
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gameover-stats p {
+  font-size: 0.9rem;
+}
+
+/* PWA Installer banner */
+.install-banner {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 440px;
+  background: rgba(22, 34, 47, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border-accent);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  padding: 12px 15px;
+  animation: slide-up-banner 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes slide-up-banner {
+  0% { transform: translate(-50%, 50px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner-icon {
+  font-size: 1.8rem;
+}
+
+.banner-text {
+  flex: 1;
+}
+
+.banner-text h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.banner-text p {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   UTILITY STYLES FOR DYNAMIC SPANNING
+   ========================================================================== */
+.dirt-particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   MIGRATION SUCCESS MODAL STYLING
+   ========================================================================== */
+.migration-results-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.migration-results-card p {
+  font-size: 0.95rem;
+  margin: 5px 0;
+}
+.conservation-trivia-card {
+  background: rgba(0, 180, 216, 0.08);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 4px 12px 12px 4px;
+  padding: 12px 15px;
+  text-align: left;
+}
+.conservation-trivia-card h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--color-primary);
+}
+.conservation-trivia-card p {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+.bonus-box {
+  background: rgba(82, 183, 136, 0.1);
+  border: 1px solid rgba(82, 183, 136, 0.2);
+  border-radius: 12px;
+  padding: 12px 15px;
+  text-align: left;
+  color: #fff;
+}
+.bonus-box h4 {
+  color: var(--color-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.bonus-box p {
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+/* ============================================
+   FEEDING — tap-to-feed visual cues
+   ============================================ */
+.floating-item.food-item {
+  cursor: grab;
+  animation: food-tap-hint 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 200, 0.7)) drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+.floating-item.food-item:hover,
+.floating-item.food-item:active {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 14px rgba(255, 255, 200, 1)) drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+.floating-item.food-item.chasing {
+  pointer-events: none;
+  filter: drop-shadow(0 0 18px rgba(255, 230, 120, 1));
+}
+@keyframes food-tap-hint {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* ============================================
+   TURTLE — tickle/rub interactivity
+   ============================================ */
+.sea-turtle-sprite {
+  cursor: grab;
+  touch-action: none;
+}
+.sea-turtle-sprite:active {
+  cursor: grabbing;
+}
+.sea-turtle-sprite.being-tickled {
+  animation: tickle-wiggle 0.25s ease-in-out infinite, swim-body 5s ease-in-out infinite;
+}
+@keyframes tickle-wiggle {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-4px) rotate(-3deg); }
+  75% { transform: translateX(4px) rotate(3deg); }
+}
+
+.tickle-heart {
+  position: absolute;
+  font-size: 1.4rem;
+  pointer-events: none;
+  z-index: 20;
+  animation: heart-float 0.9s ease-out forwards;
+}
+@keyframes heart-float {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { transform: translateY(-10px) scale(1.2); opacity: 1; }
+  100% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+}
+
+/* ============================================
+   IDLE BEHAVIORS — flap, roll, look around
+   ============================================ */
+.sea-turtle-sprite.idle-flap {
+  animation: idle-flap-anim 1.2s ease-in-out, swim-body 5s ease-in-out infinite;
+}
+@keyframes idle-flap-anim {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-18px) rotate(-4deg); }
+  50% { transform: translateY(-8px) rotate(4deg); }
+  75% { transform: translateY(-22px) rotate(-2deg); }
+}
+
+.sea-turtle-sprite.idle-look {
+  animation: idle-look-anim 1.6s ease-in-out, swim-body 5s ease-in-out infinite;
+}
+@keyframes idle-look-anim {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-8deg); }
+  70% { transform: rotate(8deg); }
+}
+
+.sea-turtle-sprite.idle-roll {
+  animation: idle-roll-anim 1.4s ease-in-out, swim-body 5s ease-in-out infinite;
+}
+@keyframes idle-roll-anim {
+  0% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(360deg) scale(1.05); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+/* Bubbles emitted by turtle */
+.turtle-bubble {
+  position: absolute;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(180, 220, 255, 0.4));
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 4;
+  animation: bubble-rise 2.2s ease-out forwards;
+}
+@keyframes bubble-rise {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 0.9; }
+  100% { transform: translate(var(--bx, 10px), -120px) scale(1.1); opacity: 0; }
+}
+
+.ambient-bubble {
+  position: absolute;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(180, 220, 255, 0.2));
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  animation: ambient-bubble-rise 5s linear forwards;
+}
+@keyframes ambient-bubble-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  15% { opacity: 0.7; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+}
+
+/* ============================================
+   DYNAMIC LIQUID TIDE (beach + beaching scenes)
+   ============================================ */
+.tide-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 170px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.tide-layer.beaching-tide {
+  height: 210px;
+  /* slightly stronger color presence where water meets warm sand */
+  filter: saturate(1.15);
+  background: linear-gradient(to bottom, #0a4a72 0%, #1d7ab5 40%, transparent 100%);
+}
+/* Beach scene: water against night-sand backdrop */
+#beach-sandbox > .tide-layer {
+  background: linear-gradient(to bottom, #0a3a63 0%, #1d7ab5 45%, transparent 100%);
+}
+.tide-svg {
+  position: absolute;
+  top: 0;
+  left: -10%;
+  width: 220%; /* extra width allows horizontal drift without exposing edges */
+  height: 100%;
+  display: block;
+  /* Flip vertically so deep water sits at the TOP (under the banner) and
+     foam/crest meets the sand at the bottom of the tide layer */
+  transform: scaleY(-1);
+  transform-origin: center center;
+}
+
+/* Each wave layer drifts at its own speed for a liquid parallax look */
+.tide-wave {
+  transform-origin: center;
+  will-change: transform;
+}
+.tide-back {
+  animation: tide-drift-slow 11s ease-in-out infinite alternate,
+             tide-bob 5s ease-in-out infinite;
+}
+.tide-mid {
+  animation: tide-drift-med 7s ease-in-out infinite alternate,
+             tide-bob 4s ease-in-out infinite reverse;
+  opacity: 0.85;
+}
+.tide-front {
+  animation: tide-drift-fast 4.5s ease-in-out infinite alternate,
+             tide-bob 3s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.tide-foam {
+  animation: tide-foam-shimmer 2.8s ease-in-out infinite alternate,
+             tide-drift-fast 5s linear infinite alternate;
+  opacity: 0.85;
+}
+
+@keyframes tide-drift-slow {
+  0%   { transform: translateX(-4%); }
+  100% { transform: translateX(4%); }
+}
+@keyframes tide-drift-med {
+  0%   { transform: translateX(3%); }
+  100% { transform: translateX(-5%); }
+}
+@keyframes tide-drift-fast {
+  0%   { transform: translateX(-2%) translateY(0); }
+  100% { transform: translateX(5%) translateY(-2px); }
+}
+@keyframes tide-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+@keyframes tide-foam-shimmer {
+  0%   { opacity: 0.55; }
+  50%  { opacity: 0.95; }
+  100% { opacity: 0.7; }
+}
+
+/* Make sure nest/hazards float above tide */
+.nest-site, .hazards-layer, .hatchlings-layer, .beach-trash-can-zone {
+  z-index: 5;
+}
+
+/* ============================================
+   PREDATOR ALERT + DEFENSIVE POSTURE (Ocean QTE)
+   ============================================ */
+.sea-turtle-sprite.predator-alert {
+  animation: predator-flinch 0.6s ease-in-out 2, swim-body 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 16px rgba(255, 80, 80, 0.65)) drop-shadow(0 12px 25px rgba(0,0,0,0.5));
+}
+@keyframes predator-flinch {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  20% { transform: translateY(-6px) rotate(-2deg); }
+  40% { transform: translateY(2px) rotate(3deg); }
+  60% { transform: translateY(-3px) rotate(-1deg); }
+}
+
+.sea-turtle-sprite.defensive-posture {
+  /* turtle stops swimming freely and angles shell toward threat (rotates slightly) */
+  animation: defensive-brace 0.5s ease-out forwards;
+  filter: drop-shadow(0 0 18px rgba(255, 200, 80, 0.6)) drop-shadow(0 12px 25px rgba(0,0,0,0.5));
+}
+@keyframes defensive-brace {
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  100% { transform: translateY(4px) rotate(-8deg) scale(0.96); }
+}
+/* Freeze flipper paddling while braced — pulled in tight */
+.sea-turtle-sprite.defensive-posture .flipper {
+  animation: none !important;
+}
+
+/* ============================================
+   GROWTH STAGES — turtle visibly grows with age
+   ============================================ */
+.sea-turtle-sprite.stage-hatchling { transform: scale(0.55); }
+.sea-turtle-sprite.stage-juvenile  { transform: scale(0.72); }
+.sea-turtle-sprite.stage-subadult  { transform: scale(0.88); }
+.sea-turtle-sprite.stage-adult     { transform: scale(1.05); }
+.sea-turtle-sprite.stage-elder     { transform: scale(1.18); filter: drop-shadow(0 12px 25px rgba(0,0,0,0.5)) sepia(0.12); }
+
+/* Growth scale is preserved during interactive transforms by applying it via
+   a wrapper transform — re-establish so swim animations still compose. */
+.sea-turtle-sprite[class*="stage-"] {
+  transform-origin: center center;
+  transition: transform 0.8s cubic-bezier(.45,.05,.55,.95), filter 0.8s ease;
+}
+
+/* ============================================
+   SPECIES PALETTES & TRAITS
+   ============================================ */
+/* GREEN SEA TURTLE — vibrant green grazer, smaller head */
+.sea-turtle-sprite.species-green #turtle-shell ellipse { fill: #1b4332; stroke: #2d6a4f; }
+.sea-turtle-sprite.species-green #turtle-shell path[fill="#40916c"] { fill: #40916c; }
+.sea-turtle-sprite.species-green .flipper path { fill: #2d6a4f; }
+.sea-turtle-sprite.species-green .fl-back-left path,
+.sea-turtle-sprite.species-green .fl-back-right path { fill: #1b4332; }
+.sea-turtle-sprite.species-green #turtle-head ellipse { fill: #2d6a4f; }
+.sea-turtle-sprite.species-green #turtle-head path { fill: #2d6a4f; }
+
+/* LOGGERHEAD — reddish-brown shell, oversized head, stockier */
+.sea-turtle-sprite.species-loggerhead #turtle-shell ellipse:first-child {
+  fill: #6b3410; stroke: #8b4513;
+}
+.sea-turtle-sprite.species-loggerhead #turtle-shell path[fill="#40916c"] { fill: #a0522d; }
+.sea-turtle-sprite.species-loggerhead #turtle-shell circle[fill="#52b788"] { fill: #cd853f; }
+.sea-turtle-sprite.species-loggerhead .flipper path { fill: #8b4513; }
+.sea-turtle-sprite.species-loggerhead .fl-back-left path,
+.sea-turtle-sprite.species-loggerhead .fl-back-right path { fill: #6b3410; }
+.sea-turtle-sprite.species-loggerhead #turtle-head ellipse {
+  fill: #8b4513;
+  /* signature oversized head */
+  transform: scale(1.25);
+  transform-origin: 100px 55px;
+  transform-box: fill-box;
+}
+.sea-turtle-sprite.species-loggerhead #turtle-head path { fill: #8b4513; }
+.sea-turtle-sprite.species-loggerhead .flipper {
+  /* slower, more powerful strokes */
+  animation-duration: 3.4s !important;
+}
+
+/* LEATHERBACK — dark blue-gray, largest, with ridged shell stripes */
+.sea-turtle-sprite.species-leatherback #turtle-shell ellipse:first-child {
+  fill: #1a1d2e; stroke: #2c3e50;
+}
+.sea-turtle-sprite.species-leatherback #turtle-shell path[fill="#40916c"] { fill: #2c3e50; }
+.sea-turtle-sprite.species-leatherback #turtle-shell circle[fill="#52b788"] { fill: #4a6072; }
+.sea-turtle-sprite.species-leatherback #turtle-shell path[stroke="#1b4332"] {
+  /* exaggerate the longitudinal ridges characteristic of leatherbacks */
+  stroke: #5b7a8c;
+  stroke-width: 4 !important;
+}
+.sea-turtle-sprite.species-leatherback .flipper path { fill: #2c3e50; }
+.sea-turtle-sprite.species-leatherback .fl-back-left path,
+.sea-turtle-sprite.species-leatherback .fl-back-right path { fill: #1a1d2e; }
+.sea-turtle-sprite.species-leatherback #turtle-head ellipse { fill: #2c3e50; }
+.sea-turtle-sprite.species-leatherback #turtle-head path { fill: #2c3e50; }
+.sea-turtle-sprite.species-leatherback .flipper {
+  /* longer, gliding strokes — leatherbacks are deep-divers */
+  animation-duration: 3.8s !important;
+}
+.sea-turtle-sprite.species-leatherback {
+  /* additional size boost — leatherbacks are the largest sea turtles */
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,0.55));
+}
+.sea-turtle-sprite.species-leatherback.stage-adult { transform: scale(1.18); }
+.sea-turtle-sprite.species-leatherback.stage-elder { transform: scale(1.32); }
+
+/* Quick visual cue for sickness — slight green tint */
+.sea-turtle-sprite.sick { filter: drop-shadow(0 12px 25px rgba(0,0,0,0.5)) hue-rotate(40deg) saturate(0.7); }
+
+/* ============================================
+   PLAYMATE — species-specific sea friend (Play action)
+   ============================================ */
+.sea-playmate {
+  position: absolute;
+  font-size: 2.2rem;
+  z-index: 7;
+  cursor: pointer;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 200, 0.7)) drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+  transition: filter 0.2s ease;
+  animation: playmate-wiggle 0.6s ease-in-out infinite;
+  pointer-events: auto;
+  will-change: transform, left, top;
+}
+.sea-playmate:hover { filter: drop-shadow(0 0 18px rgba(255,255,200,1)) drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+.sea-playmate.high-five {
+  animation: playmate-highfive 0.25s ease-out;
+}
+.sea-playmate.swimming-away {
+  animation: playmate-leave 1.2s ease-in forwards;
+}
+@keyframes playmate-wiggle {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-4px) rotate(3deg); }
+}
+@keyframes playmate-highfive {
+  0%   { transform: scale(1) rotate(0); }
+  50%  { transform: scale(1.4) rotate(15deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes playmate-leave {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.6) translateY(-30px); }
+}
+
+/* ============================================
+   GHOST NET — strand grid breaks as you cut
+   ============================================ */
+.net-grid-graphics {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+  width: 220px;
+  height: 220px;
+  margin: 16px auto 0;
+  padding: 8px;
+  background:
+    repeating-linear-gradient(45deg,  rgba(255,255,255,0.15) 0 2px, transparent 2px 12px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.15) 0 2px, transparent 2px 12px);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+}
+.net-grid-graphics.snapping {
+  animation: net-shake 0.35s ease-in-out infinite;
+}
+.net-strand {
+  display: block;
+  background: rgba(220, 220, 220, 0.85);
+  border: 1px solid rgba(0,0,0,0.35);
+  border-radius: 3px;
+  box-shadow: inset 0 0 4px rgba(255,255,255,0.4);
+  transition: opacity 0.25s ease, transform 0.4s ease;
+}
+.net-strand.cut {
+  animation: strand-snap 0.4s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes strand-snap {
+  0%   { opacity: 1; transform: scale(1) rotate(0); }
+  40%  { opacity: 0.9; transform: scale(1.15) rotate(8deg); background: #ffd166; }
+  100% { opacity: 0; transform: scale(0.4) rotate(-25deg) translateY(20px); }
+}
+@keyframes net-shake {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(-3px, 2px); }
+  75%      { transform: translate(3px, -2px); }
+}
+
+/* ============================================
+   SCREEN TRANSITIONS — fade + slide between scenes
+   ============================================ */
+.game-screen.screen-exit {
+  display: flex !important;
+  z-index: 9;
+  animation: screen-exit-anim 0.32s ease-in forwards;
+  pointer-events: none;
+}
+.game-screen.screen-enter {
+  animation: screen-enter-anim 0.55s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes screen-exit-anim {
+  0%   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.985); filter: blur(4px); }
+}
+@keyframes screen-enter-anim {
+  0%   { opacity: 0; transform: translateY(24px) scale(1.02); filter: blur(6px); }
+  60%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}

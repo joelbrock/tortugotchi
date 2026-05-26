@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "short_name": "Tortugotchi",
+  "name": "Tortugotchi: Sea Turtle Protector",
+  "description": "A Tamagotchi-style game to protect nests, raise sea turtles, and advocate for sea turtle conservation.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "scope": "./",
+  "start_url": "./index.html",
+  "background_color": "#0d1b2a",
+  "theme_color": "#008080",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "categories": ["games", "education"]
+}

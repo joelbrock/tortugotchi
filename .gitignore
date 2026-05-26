@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+
+# Tooling / AI agent state (not part of the app)
+.claude/
+.claude-flow/
+.swarm/
+.mcp.json
+CLAUDE.md

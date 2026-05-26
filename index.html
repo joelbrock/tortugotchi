@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Tortugotchi - Sea Turtle Conservation Game</title>
+  
+  <!-- PWA & Mobile Web Capabilities -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tortugotchi">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#0d1b2a">
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Help raise awareness for sea turtle conservation! Guard nests, guide hatchlings to the ocean, raise your own sea turtle, and protect it from human and environmental hazards in this interactive Tamagotchi-style game.">
+  <meta name="keywords" content="sea turtle, conservation, tamagotchi, game, PWA, marine life, endangered species">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Service Worker / PWA Install Prompt (Floating) -->
+  <div id="pwa-install-banner" class="install-banner hidden">
+    <div class="banner-content">
+      <span class="banner-icon">🐢</span>
+      <div class="banner-text">
+        <h4>Install Tortugotchi</h4>
+        <p>Play offline and save your turtle's progress!</p>
+      </div>
+      <button id="btn-pwa-install" class="btn-primary-mini">Install</button>
+      <button id="btn-pwa-close" class="btn-text">Close</button>
+    </div>
+  </div>
+
+  <!-- Main Mobile Aspect Frame -->
+  <main id="app-container" class="app-frame">
+
+    <!-- ========================================== -->
+    <!-- 1. START / ONBOARDING SCREEN -->
+    <!-- ========================================== -->
+    <section id="screen-start" class="game-screen active">
+      <div class="header-logo">
+        <svg viewBox="0 0 100 100" class="logo-turtle-svg">
+          <path d="M50 15 C 38 15, 30 25, 30 45 C 30 65, 38 75, 50 75 C 62 75, 70 65, 70 45 C 70 25, 62 15, 50 15 Z" fill="#00b4d8"/>
+          <ellipse cx="50" cy="18" rx="8" ry="10" fill="#0077b6"/>
+          <!-- Flippers -->
+          <path d="M32 30 C 15 25, 5 35, 12 50 C 18 58, 28 50, 31 42" fill="#0096c7"/>
+          <path d="M68 30 C 85 25, 95 35, 88 50 C 82 58, 72 50, 69 42" fill="#0096c7"/>
+          <!-- Little Shell Pattern -->
+          <path d="M50 25 L 50 65 M38 45 L 62 45" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+          <circle cx="50" cy="18" r="3" fill="#ffffff"/>
+        </svg>
+        <h1 class="app-title">Tortugotchi</h1>
+        <p class="app-subtitle">Protect. Raise. Conserve.</p>
+      </div>
+
+      <div class="glass-panel onboard-card">
+        <p class="intro-text">
+          Sea turtles have navigated our oceans for over 100 million years, but today they face extinction due to plastic pollution, light disorientation, coastal development, and boat collisions.
+        </p>
+        <p class="intro-action"><strong>Choose a species to begin your conservation journey:</strong></p>
+
+        <div class="species-selector">
+          <!-- Green Turtle -->
+          <label class="species-option" for="species-green">
+            <input type="radio" name="species" id="species-green" value="green" checked>
+            <div class="species-card">
+              <span class="species-icon">🌿</span>
+              <div class="species-details">
+                <h3>Green Sea Turtle</h3>
+                <p class="species-diet">Diet: Herbivore (Seagrass/Algae)</p>
+                <p class="species-desc">Possesses finely serrated jaws to graze on seagrass beds, maintaining critical marine ecosystems.</p>
+              </div>
+            </div>
+          </label>
+
+          <!-- Loggerhead -->
+          <label class="species-option" for="species-loggerhead">
+            <input type="radio" name="species" id="species-loggerhead" value="loggerhead">
+            <div class="species-card">
+              <span class="species-icon">🦀</span>
+              <div class="species-details">
+                <h3>Loggerhead Sea Turtle</h3>
+                <p class="species-diet">Diet: Carnivore (Crabs/Shellfish)</p>
+                <p class="species-desc">Known for its massive head and powerful jaws, feeding on hard-shelled crabs and mollusks.</p>
+              </div>
+            </div>
+          </label>
+
+          <!-- Leatherback -->
+          <label class="species-option" for="species-leatherback">
+            <input type="radio" name="species" id="species-leatherback" value="leatherback">
+            <div class="species-card">
+              <span class="species-icon">🪼</span>
+              <div class="species-details">
+                <h3>Leatherback Sea Turtle</h3>
+                <p class="species-diet">Diet: Gelatinivore (Jellyfish)</p>
+                <p class="species-desc">The largest sea turtle. Has a rubbery, ridged shell and eats jellyfish, diving over 4,000 feet deep.</p>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <button id="btn-start-game" class="btn-primary btn-pulse">Start Conservation Game</button>
+      </div>
+
+      <div class="bottom-info-links">
+        <button id="btn-show-facts-main" class="btn-secondary-text">📚 Read Conservation Facts</button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. BEACH / NEST GUARDING STAGE -->
+    <!-- ========================================== -->
+    <section id="screen-beach" class="game-screen">
+      <div class="screen-header">
+        <div class="hud-item">
+          <span class="hud-label">Nest Status</span>
+          <span id="beach-phase-title" class="hud-value text-accent">Guarding Eggs</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">Hatchlings Safe</span>
+          <span id="hatchlings-saved-count" class="hud-value text-success">0 / 20</span>
+        </div>
+      </div>
+
+      <!-- Main Interactive Beach Play Area -->
+      <div id="beach-sandbox" class="beach-area">
+        <!-- Dynamic, liquid tide rolling at top of beach -->
+        <div class="tide-layer">
+          <svg class="tide-svg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="tideGradBeach" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7ed3f5" stop-opacity="0.95"/>
+                <stop offset="55%" stop-color="#1d7ab5" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#0a3a63" stop-opacity="0.75"/>
+              </linearGradient>
+              <linearGradient id="tideGradBeach2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#a8e3f7" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#1c93cc" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="tide-wave tide-back"  d="M0,60 C150,90 300,30 600,55 C900,80 1050,30 1200,60 L1200,120 L0,120 Z" fill="url(#tideGradBeach)"/>
+            <path class="tide-wave tide-mid"   d="M0,72 C200,40 400,95 600,65 C800,40 1000,90 1200,68 L1200,120 L0,120 Z" fill="url(#tideGradBeach2)"/>
+            <path class="tide-wave tide-front" d="M0,85 C180,110 360,55 600,80 C840,105 1020,60 1200,82 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.45)"/>
+            <path class="tide-foam"  d="M0,95 C150,82 350,108 600,92 C850,76 1050,108 1200,92 L1200,120 L0,120 Z" fill="rgba(255,255,255,0.7)"/>
+          </svg>
+        </div>
+
+        <!-- Eggs Nest Container -->
+        <div id="turtle-nest" class="nest-site">
+          <div class="nest-mound"></div>
+          <div class="nest-label">NEST</div>
+          <!-- Little hatching eggs inside -->
+          <div id="nest-eggs-visual" class="eggs-visual">
+            <div class="egg"></div>
+            <div class="egg"></div>
+            <div class="egg"></div>
+          </div>
+        </div>
+
+        <!-- Dynamic elements will be spawned here by JS:
+             - Trash pieces (draggable to trash can)
+             - Deep holes (tappable to fill)
+             - Predators (ghost crabs, seagulls - tappable to scare)
+             - Light pollution rays (streetlamp/flashlight)
+             - Hatchlings (moving from nest to sea)
+        -->
+        <div id="beach-hazards-layer" class="hazards-layer"></div>
+        <div id="hatchling-crawlers-layer" class="hatchlings-layer"></div>
+
+        <!-- Beach Obstacles / Environmental elements -->
+        <div id="beach-trash-can" class="beach-trash-can-zone">
+          <span class="trash-icon">🗑️</span>
+          <span class="trash-label">Recycle Bin</span>
+        </div>
+
+        <!-- Light switch overlay if a streetlamp turns on -->
+        <div id="light-pollution-hud" class="light-alert-card hidden">
+          <span class="light-warning-icon">⚠️💡</span>
+          <div class="light-warning-text">
+            <strong>Light Pollution Active!</strong>
+            <p>Hatchlings crawl toward artificial lights instead of the moonlit sea! Tap the source to turn it off.</p>
+          </div>
+        </div>
+
+        <!-- Instructions Bubble -->
+        <div id="beach-tutorial-overlay" class="game-tutorial-bubble">
+          <p id="beach-tutorial-text">Clear beach trash, fill holes, scare crabs/gulls, and turn off blinding lights before hatching!</p>
+          <button id="btn-dismiss-beach-tut" class="btn-primary-mini">Got it!</button>
+        </div>
+      </div>
+
+      <!-- Action / Progress Controls -->
+      <div class="beach-footer glass-panel">
+        <div class="progress-bar-container">
+          <div class="progress-bar-label">Time to Hatching / Migration</div>
+          <div class="progress-bar-bg">
+            <div id="beach-progress-fill" class="progress-bar-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="action-feedback-text" id="beach-feedback">Guarding nest... clear hazards to prepare the beach!</div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. OCEAN TAMAGOTCHI CARE STAGE -->
+    <!-- ========================================== -->
+    <section id="screen-ocean" class="game-screen">
+      <!-- HUD / Stats Dashboard -->
+      <div class="ocean-header">
+        <div class="turtle-identity">
+          <span id="turtle-avatar-indicator">🐢</span>
+          <div>
+            <h2 id="display-turtle-name">Shelly</h2>
+            <p id="display-turtle-species" class="species-subtext">Green Sea Turtle</p>
+          </div>
+          <button id="btn-rename-turtle" class="btn-edit-icon" title="Rename Turtle">✏️</button>
+        </div>
+        <div class="turtle-age-score">
+          <span class="hud-label">Turtle Age</span>
+          <span id="turtle-age-val" class="hud-value">0 Days</span>
+        </div>
+      </div>
+
+      <!-- Core Tamagotchi Stat Bars -->
+      <div class="stats-grid">
+        <!-- Health -->
+        <div class="stat-bar-card">
+          <div class="stat-bar-header">
+            <span>❤️ Health</span>
+            <span id="stat-health-text" class="stat-val">100%</span>
+          </div>
+          <div class="stat-progress-bg">
+            <div id="bar-health" class="stat-progress-fill health" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- Hunger -->
+        <div class="stat-bar-card">
+          <div class="stat-bar-header">
+            <span>😋 Fullness</span>
+            <span id="stat-hunger-text" class="stat-val">80%</span>
+          </div>
+          <div class="stat-progress-bg">
+            <div id="bar-hunger" class="stat-progress-fill hunger" style="width: 80%"></div>
+          </div>
+        </div>
+
+        <!-- Joy / Happiness -->
+        <div class="stat-bar-card">
+          <div class="stat-bar-header">
+            <span>✨ Happiness</span>
+            <span id="stat-joy-text" class="stat-val">90%</span>
+          </div>
+          <div class="stat-progress-bg">
+            <div id="bar-joy" class="stat-progress-fill joy" style="width: 90%"></div>
+          </div>
+        </div>
+
+        <!-- Shell Cleanliness -->
+        <div class="stat-bar-card">
+          <div class="stat-bar-header">
+            <span>🛡️ Shell Clean</span>
+            <span id="stat-clean-text" class="stat-val">100%</span>
+          </div>
+          <div class="stat-progress-bg">
+            <div id="bar-clean" class="stat-progress-fill clean" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Animated Turtle Playpen -->
+      <div id="ocean-playpen" class="ocean-area">
+        <!-- Ocean current background particles will float here -->
+        <div class="ocean-light-rays"></div>
+        <div class="ocean-water-particles"></div>
+
+        <!-- Active QTE Hazard Overlays (Nets, Boats, Sharks) -->
+        <div id="qte-net-overlay" class="qte-overlay net-hazard hidden">
+          <div class="qte-warning-title">⚠️ GHOST NET ENTANGLEMENT!</div>
+          <p class="qte-instructions">SWIPE REPEATEDLY across the net to cut your turtle loose!</p>
+          <div class="swipe-progress-container">
+            <div id="net-swipe-fill" class="swipe-progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="net-grid-graphics"></div>
+        </div>
+
+        <div id="qte-boat-overlay" class="qte-overlay boat-hazard hidden">
+          <div class="qte-warning-title">🚢 BOAT STRIKE INCOMING!</div>
+          <p class="qte-instructions">Propeller noise approaching! Tap the DIVE button to escape!</p>
+          <button id="btn-qte-dive" class="btn-danger btn-large btn-pulse">🌊 DIVE DEEP! 🌊</button>
+        </div>
+
+        <div id="qte-shark-overlay" class="qte-overlay shark-hazard hidden">
+          <div class="qte-warning-title">🦈 SHARK SPOTTED!</div>
+          <p class="qte-instructions">Tiger shark in the area! Tap BRACE to tuck head and flippers tight and angle your shell toward the threat — sea turtles can't fully retract, so the shell is their main armor.</p>
+          <div class="shark-btn-row">
+            <button id="btn-qte-hide" class="btn-warning btn-large">🛡️ Brace (Shell First)</button>
+          </div>
+          <!-- Shark animated graphic will be injected here -->
+        </div>
+
+        <!-- Food items that drift when feeding -->
+        <div id="floating-items-container" class="floating-items-layer"></div>
+
+        <!-- Draggable Brush Overlay for Shell Cleaning -->
+        <div id="cleaning-game-overlay" class="cleaning-layer hidden">
+          <div class="cleaning-instructions">DRAG the brush over the turtle's shell to clean algae and barnacles!</div>
+          <div id="cleaning-brush" class="interactive-brush">🪥 Brush</div>
+        </div>
+
+        <!-- THE MAIN ANIME SEA TURTLE SVG -->
+        <div id="sea-turtle-container" class="sea-turtle-sprite">
+          <svg viewBox="0 0 200 200" id="svg-turtle">
+            <!-- Front Flippers (animated in CSS) -->
+            <g id="flipper-left" class="flipper fl-left">
+              <path d="M60 90 C 25 80, 5 95, 12 120 C 18 135, 45 125, 55 110" fill="#2d6a4f"/>
+              <path d="M50 95 C 28 88, 15 100, 20 115 C 25 125, 42 118, 48 108" fill="#40916c" opacity="0.6"/>
+            </g>
+            <g id="flipper-right" class="flipper fl-right">
+              <path d="M140 90 C 175 80, 195 95, 188 120 C 182 135, 155 125, 145 110" fill="#2d6a4f"/>
+              <path d="M150 95 C 172 88, 185 100, 180 115 C 175 125, 158 118, 152 108" fill="#40916c" opacity="0.6"/>
+            </g>
+
+            <!-- Rear Flippers -->
+            <g id="flipper-back-left" class="flipper fl-back-left">
+              <path d="M75 145 C 55 155, 45 175, 55 185 C 65 190, 75 175, 80 160" fill="#1b4332"/>
+            </g>
+            <g id="flipper-back-right" class="flipper fl-back-right">
+              <path d="M125 145 C 145 155, 155 175, 145 185 C 135 190, 125 175, 120 160" fill="#1b4332"/>
+            </g>
+
+            <!-- Little Tail -->
+            <path d="M100 165 L 100 182 L 96 172 Z" fill="#1b4332"/>
+
+            <!-- Main Shell -->
+            <g id="turtle-shell">
+              <!-- Outer rim / carapace -->
+              <ellipse cx="100" cy="120" rx="45" ry="52" fill="#1b4332" stroke="#2d6a4f" stroke-width="4"/>
+              
+              <!-- Inner shell patterns -->
+              <path d="M100 72 C 120 85, 120 155, 100 168 C 80 155, 80 85, 100 72 Z" fill="#40916c"/>
+              
+              <!-- Cute scute design patterns -->
+              <path d="M100 95 L 75 88 M100 95 L 125 88 M100 120 L 68 120 M100 120 L 132 120 M100 145 L 75 152 M100 145 L 125 152 M100 72 L 100 168" stroke="#1b4332" stroke-width="3" stroke-linecap="round"/>
+              
+              <!-- Spots / Highlights on shell -->
+              <circle cx="90" cy="105" r="4" fill="#52b788" opacity="0.5"/>
+              <circle cx="110" cy="135" r="5" fill="#52b788" opacity="0.5"/>
+
+              <!-- Algae Spots (Visual representation of dirty shell) -->
+              <g id="turtle-algae-spots" class="dirty-spots hidden">
+                <circle cx="80" cy="100" r="8" fill="#4f5d2f" opacity="0.8"/>
+                <circle cx="120" cy="110" r="10" fill="#3a4f1c" opacity="0.8"/>
+                <circle cx="95" cy="140" r="7" fill="#4f5d2f" opacity="0.9"/>
+                <circle cx="110" cy="95" r="5" fill="#3a4f1c" opacity="0.75"/>
+                <text x="80" y="103" font-size="8">🐚</text>
+                <text x="115" y="145" font-size="8">🐚</text>
+              </g>
+            </g>
+
+            <!-- Neck and Head -->
+            <g id="turtle-head">
+              <!-- Neck -->
+              <path d="M90 85 L 90 65 C 90 60, 110 60, 110 65 L 110 85 Z" fill="#2d6a4f"/>
+              
+              <!-- Head shape -->
+              <ellipse cx="100" cy="55" rx="22" ry="24" fill="#2d6a4f"/>
+
+              <!-- Anime Cheeks (blush) -->
+              <ellipse cx="86" cy="62" rx="4" ry="2.5" fill="#ff85a1" opacity="0.6"/>
+              <ellipse cx="114" cy="62" rx="4" ry="2.5" fill="#ff85a1" opacity="0.6"/>
+
+              <!-- EXPRESSIVE ANIME EYES -->
+              <g id="turtle-eyes-happy" class="eye-state hidden">
+                <!-- Happy curve eyes ^ ^ -->
+                <path d="M80 54 Q 85 45, 90 54" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                <path d="M110 54 Q 115 45, 120 54" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+              </g>
+
+              <g id="turtle-eyes-dizzy" class="eye-state hidden">
+                <!-- Dizzy spiral eyes -->
+                <text x="79" y="58" font-size="14" fill="#ffffff" font-weight="bold">×</text>
+                <text x="109" y="58" font-size="14" fill="#ffffff" font-weight="bold">×</text>
+              </g>
+
+              <g id="turtle-eyes-sleeping" class="eye-state hidden">
+                <!-- Closed sleeping curves u u -->
+                <path d="M78 52 Q 84 59, 90 52" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+                <path d="M110 52 Q 116 59, 122 52" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+              </g>
+
+              <g id="turtle-eyes-normal" class="eye-state">
+                <!-- Large, adorable glossy anime eyes -->
+                <circle cx="84" cy="53" r="7" fill="#000000"/>
+                <circle cx="116" cy="53" r="7" fill="#000000"/>
+                <!-- Gloss highlights -->
+                <circle cx="82" cy="50" r="3.5" fill="#ffffff"/>
+                <circle cx="114" cy="50" r="3.5" fill="#ffffff"/>
+                <circle cx="86" cy="55" r="1.5" fill="#ffffff"/>
+                <circle cx="118" cy="55" r="1.5" fill="#ffffff"/>
+              </g>
+
+              <!-- Cute Mouth -->
+              <g id="turtle-mouth-normal" class="mouth-state">
+                <path d="M96 66 Q 100 70, 104 66" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"/>
+              </g>
+              <g id="turtle-mouth-eating" class="mouth-state hidden">
+                <circle cx="100" cy="67" r="4.5" fill="#ff758f"/>
+              </g>
+              <g id="turtle-mouth-sad" class="mouth-state hidden">
+                <path d="M96 68 Q 100 64, 104 68" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Floating Dialog Bubble for Status thoughts -->
+        <div id="turtle-thought-bubble" class="thought-bubble hidden">
+          <span id="thought-text">I'm hungry! 🌿</span>
+        </div>
+      </div>
+
+      <!-- Action Panel Buttons (Glassmorphic) -->
+      <div class="ocean-footer glass-panel">
+        <div class="button-row">
+          <!-- Feed -->
+          <button id="btn-action-feed" class="action-btn">
+            <span class="btn-emoji">🍽️</span>
+            <span class="btn-lbl">Feed</span>
+          </button>
+          
+          <!-- Clean -->
+          <button id="btn-action-clean" class="action-btn">
+            <span class="btn-emoji">🧼</span>
+            <span class="btn-lbl">Clean</span>
+          </button>
+
+          <!-- Play -->
+          <button id="btn-action-play" class="action-btn">
+            <span class="btn-emoji">⚽</span>
+            <span class="btn-lbl">Play</span>
+          </button>
+
+          <!-- Heal -->
+          <button id="btn-action-heal" class="action-btn">
+            <span class="btn-emoji">🩹</span>
+            <span class="btn-lbl">Heal</span>
+          </button>
+        </div>
+
+        <!-- Sub-menus (Drawer systems) -->
+        <div id="feed-options-drawer" class="drawer-panel hidden">
+          <h4>Select Food (Ensure it matches species diet!)</h4>
+          <div class="food-options-row">
+            <button class="food-btn" data-food="seagrass">🌿 Seagrass</button>
+            <button class="food-btn" data-food="crabs">🦀 Crab meat</button>
+            <button class="food-btn" data-food="jellyfish">🪼 Jellyfish</button>
+          </div>
+          <div class="drawer-warning">👆 <strong>Tap the food</strong> as it drifts down to feed your turtle. Beware: plastic bags 🛍️ that resemble jellyfish are dangerous — tap to push them away!</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. BEACHING / TOURIST SHIELD EVENT -->
+    <!-- ========================================== -->
+    <section id="screen-beaching" class="game-screen">
+      <div class="screen-header warning-bg">
+        <div class="hud-item">
+          <span class="hud-label text-warning">CRITICAL STATE</span>
+          <span class="hud-value text-white">Turtle Beached!</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label text-white">Resting Progress</span>
+          <span id="beaching-progress-text" class="hud-value">0%</span>
+        </div>
+      </div>
+
+      <!-- Beaching Play Sandbox -->
+      <div id="beaching-sandbox" class="beaching-area">
+        <!-- Dynamic colorful tide rolling at top of beach (water meeting sand) -->
+        <div class="tide-layer beaching-tide">
+          <svg class="tide-svg" viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="tideGradBch" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#9be0ff" stop-opacity="0.95"/>
+                <stop offset="45%" stop-color="#2293c7" stop-opacity="0.95"/>
+                <stop offset="100%" stop-color="#0a4a72" stop-opacity="0.8"/>
+              </linearGradient>
+              <linearGradient id="tideGradBch2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#c9f0ff" stop-opacity="0.75"/>
+                <stop offset="100%" stop-color="#3ab0d8" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="tide-wave tide-back"  d="M0,70 C200,100 400,40 600,65 C800,90 1000,40 1200,70 L1200,140 L0,140 Z" fill="url(#tideGradBch)"/>
+            <path class="tide-wave tide-mid"   d="M0,85 C220,50 420,110 600,75 C780,40 990,108 1200,82 L1200,140 L0,140 Z" fill="url(#tideGradBch2)"/>
+            <path class="tide-wave tide-front" d="M0,100 C200,128 380,68 600,95 C820,122 1010,72 1200,98 L1200,140 L0,140 Z" fill="rgba(255,255,255,0.5)"/>
+            <path class="tide-foam"  d="M0,112 C160,98 360,128 600,108 C840,90 1050,128 1200,108 L1200,140 L0,140 Z" fill="rgba(255,255,255,0.78)"/>
+          </svg>
+        </div>
+
+        <!-- Beached Turtle SVG (static resting sprite) -->
+        <div id="beached-turtle-spot" class="beached-turtle-resting">
+          <div class="turtle-zone-ring"></div>
+          <span class="safe-zone-label">10 FEET SAFE ZONE</span>
+          
+          <svg viewBox="0 0 100 100" class="resting-turtle-svg">
+            <ellipse cx="50" cy="55" rx="30" ry="35" fill="#1b4332" stroke="#2d6a4f" stroke-width="2"/>
+            <circle cx="50" cy="22" r="14" fill="#2d6a4f"/>
+            <!-- Closed sleepy eyes -->
+            <path d="M42 22 Q 46 25, 48 22" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+            <path d="M52 22 Q 54 25, 58 22" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+            <!-- Flippers tucked -->
+            <path d="M22 45 C 15 50, 18 60, 24 55" fill="#2d6a4f"/>
+            <path d="M78 45 C 85 50, 82 60, 76 55" fill="#2d6a4f"/>
+          </svg>
+        </div>
+
+        <!-- Ignorant tourists will walk towards center, user must tap to push back -->
+        <div id="tourist-spawn-layer" class="tourists-layer"></div>
+
+        <!-- HUD Alerts -->
+        <div class="beaching-instructions-card">
+          <p>💤 Shelly has beached to rest and digest. <strong>Ignorant tourists are trying to crowd closer for selfies!</strong></p>
+          <p class="text-accent"><strong>Tap tourists to push them back outside the 10-foot boundary!</strong></p>
+        </div>
+      </div>
+
+      <!-- Footer displaying education fact relative to tourist behavior -->
+      <div class="beaching-footer glass-panel">
+        <div class="progress-bar-container">
+          <div class="progress-bar-bg">
+            <div id="beaching-progress-fill" class="progress-bar-fill warning" style="width: 0%"></div>
+          </div>
+        </div>
+        <div id="tourist-fact-box" class="educational-pop-box">
+          <span class="fact-icon">ℹ️</span>
+          <span id="tourist-fact-text" class="fact-text">Federal law requires maintaining at least 10 feet of distance from sea turtles.</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALS & ALERTS -->
+  <!-- ========================================== -->
+
+  <!-- 1. Conservation Facts Education Modal -->
+  <div id="modal-facts" class="modal-overlay hidden">
+    <div class="glass-panel modal-card">
+      <div class="modal-header">
+        <h2>📚 Sea Turtle Science & Conservation</h2>
+        <button id="btn-close-facts" class="btn-close-text">✕</button>
+      </div>
+      <div class="modal-body scrollable-content">
+        
+        <h3>1. Major Threat: Light Pollution 💡</h3>
+        <p>Hatchlings emerge from sandy nests at night and instinctively crawl towards the brightest horizon, which is naturally the starlight and moonlight reflecting on the ocean surface. Artificial streetlights, hotel lighting, and flashlights draw hatchlings inland. They become exhausted, dehydrated, run over by cars, or eaten by land predators.</p>
+        
+        <h3>2. Diet & Plastic Bag Mimicry 🪼</h3>
+        <p>Many sea turtles, especially Leatherbacks, eat soft-bodied jellyfish. Unfortunately, floating plastic bags in the water columns look exactly like jellyfish. If a turtle swallows plastic, it blocks their digestive tract, creating gas that makes them float (unable to dive for food) or starving them to death.</p>
+
+        <h3>3. Commercial Fishing & Ghost Nets 🕸️</h3>
+        <p>Ghost nets are commercial fishing nets that are lost or abandoned in the ocean. They continue to catch and entangle marine life indiscriminately. Since sea turtles are reptiles and breathe air with lungs, getting tangled in a net prevents them from surfacing to breathe, leading to drowning.</p>
+
+        <h3>4. Tourist Distance Rules & Laws 🚷</h3>
+        <p>All sea turtle species are listed as threatened or endangered. Under the United States <strong>Endangered Species Act (ESA)</strong>, it is illegal to harass, touch, capture, or harm sea turtles, their eggs, or hatchlings. Violations carry heavy federal penalties, including fines up to $25,000 and jail time. Wildlife agencies recommend keeping a distance of at least <strong>10 feet (3 meters)</strong> on beaches to prevent causing stress.</p>
+
+        <div class="citation-box">
+          <p>Scientific facts verified by NOAA Fisheries and Marine Turtle Research organizations.</p>
+        </div>
+      </div>
+      <button id="btn-close-facts-bottom" class="btn-primary">Back to Game</button>
+    </div>
+  </div>
+
+  <!-- 2. Migration Success & Trivia Modal -->
+  <div id="modal-migration-success" class="modal-overlay hidden">
+    <div class="glass-panel modal-card">
+      <h2 style="font-size: 1.25rem; font-weight: 800; text-align: center;">🌊 Nest Migration Results</h2>
+      
+      <div class="migration-results-card">
+        <p>Hatchlings Reached Ocean: <strong id="success-saved-count" class="text-success" style="font-size: 1.1rem;">0 / 20</strong></p>
+        <p>Survival Rate: <strong id="success-saved-pct" class="text-accent" style="font-size: 1.1rem;">0%</strong></p>
+      </div>
+      
+      <div class="conservation-trivia-card">
+        <h3>🐢 Real Science Trivia</h3>
+        <p>In the wild, only about <strong>50% to 75%</strong> of hatchlings crawl from the nest to the sea. On beaches with artificial lights and trash, this falls to <strong>less than 25%</strong>.</p>
+        <p style="margin-top: 6px;">Once in the water, the odds are even harder: only <strong>1 in 1,000 (0.1%)</strong> sea turtle hatchlings survive to adulthood due to ocean predators and human debris.</p>
+      </div>
+
+      <div id="bonus-info-card" class="bonus-box hidden">
+        <h4>🎉 Conservation Goodies Awarded!</h4>
+        <p>Superb beach management! Since you beat the unmanaged average of 25% (> 5 hatchlings), Shelly starts the ocean journey with: <strong>+20 Joy</strong>, <strong>+20 Fullness</strong>, and a **+20 Health** head-start!</p>
+      </div>
+
+      <button id="btn-migration-continue" class="btn-primary">Continue to Ocean Journey</button>
+    </div>
+  </div>
+
+  <!-- 3. Rename Turtle Modal -->
+  <div id="modal-rename" class="modal-overlay hidden">
+    <div class="glass-panel modal-card small-modal">
+      <h3>🏷️ Give Your Turtle a Name</h3>
+      <p>Give your rescued sea turtle a unique name for its ocean journey.</p>
+      <input type="text" id="input-turtle-name" maxlength="12" placeholder="Shelly" class="text-input">
+      <div class="modal-buttons">
+        <button id="btn-save-name" class="btn-primary">Save Name</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Game Over / Reset Modal -->
+  <div id="modal-gameover" class="modal-overlay hidden">
+    <div class="glass-panel modal-card small-modal text-center">
+      <h2 id="gameover-title" class="text-danger">⚠️ Shell-shocked!</h2>
+      <p id="gameover-desc">Your turtle could not survive the hazard. Try again to apply what you learned!</p>
+      <div class="gameover-stats">
+        <p>Turtle Name: <strong id="gameover-name">Shelly</strong></p>
+        <p>Age Reached: <strong id="gameover-age">0 Days</strong></p>
+      </div>
+      <button id="btn-restart-game" class="btn-primary">Restart Journey</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
