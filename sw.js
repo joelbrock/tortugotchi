@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tortugotchi-v10';
+const CACHE_NAME = 'tortugotchi-v11';
 const ASSETS = [
   './',
   './index.html',
@@ -9,43 +9,40 @@ const ASSETS = [
   './icon-512.png'
 ];
 
-// Install Event
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Caching all app shell assets');
-      return cache.addAll(ASSETS);
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate Event
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[Service Worker] Removing old cache', key);
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch Event
 self.addEventListener('fetch', (e) => {
+  const req = e.request;
+
+  // Only handle GETs over http(s) to our own origin. Skip POST/PUT/DELETE,
+  // chrome-extension://, data:, blob:, ws:, and cross-origin requests so the
+  // worker can never be coerced into serving the wrong response.
+  if (req.method !== 'GET') return;
+  let url;
+  try { url = new URL(req.url); } catch { return; }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
+  if (url.origin !== self.location.origin) return;
+
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      // Return cached version or fetch from network
-      return cachedResponse || fetch(e.request).catch(() => {
-        // Fallback for document requests if completely offline
-        if (e.request.destination === 'document') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+    caches.match(req).then((cached) => cached || fetch(req).catch(() => {
+      if (req.destination === 'document') return caches.match('./index.html');
+      return new Response('', { status: 504, statusText: 'Offline' });
+    }))
   );
 });

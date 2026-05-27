@@ -559,29 +559,57 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pagehide', saveProgress);
   window.addEventListener('beforeunload', saveProgress);
 
+  const ALLOWED_SPECIES = ['green', 'loggerhead', 'leatherback'];
+  function clampStat(n) {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return 0;
+    return Math.max(0, Math.min(100, v));
+  }
+  function sanitizeName(n) {
+    if (typeof n !== 'string') return 'Shelly';
+    // Strip control chars and HTML-relevant punctuation; cap at 12 like the input.
+    const cleaned = n.replace(/[ -<>"'`\\]/g, '').trim().slice(0, 12);
+    return cleaned.length ? cleaned : 'Shelly';
+  }
+
   function loadProgress() {
     const saved = localStorage.getItem('tortugotchi_save');
     if (!saved) return false;
-    try {
-      const data = JSON.parse(saved);
-      turtleName = data.name || 'Shelly';
-      turtleSpecies = data.species || 'green';
-      turtleAge = data.age || 0;
-      stats = data.stats || { health: 100, hunger: 80, joy: 80, clean: 100 };
-      isSick = data.isSick || false;
-
-      // Offline progression: apply the time the player was away.
-      // Capped at 24h of decay so a multi-week absence doesn't kill the turtle.
-      if (data.savedAt) {
-        const elapsedSec = Math.max(0, (Date.now() - data.savedAt) / 1000);
-        const cappedSec = Math.min(elapsedSec, 24 * 60 * 60);
-        applyOfflineProgression(cappedSec);
-      }
-      return true;
-    } catch (e) {
-      console.error("Failed to load save file, resetting.", e);
+    // Reject obviously oversized payloads (defends against extension-planted bloat).
+    if (saved.length > 4096) {
+      console.warn('Save file rejected: oversized.');
+      localStorage.removeItem('tortugotchi_save');
       return false;
     }
+    let data;
+    try { data = JSON.parse(saved); } catch (e) {
+      console.error('Failed to parse save file, resetting.', e);
+      return false;
+    }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+
+    turtleName = sanitizeName(data.name);
+    turtleSpecies = ALLOWED_SPECIES.includes(data.species) ? data.species : 'green';
+    const ageNum = Number(data.age);
+    turtleAge = Number.isFinite(ageNum) && ageNum >= 0 ? Math.floor(ageNum) : 0;
+
+    const s = data.stats && typeof data.stats === 'object' && !Array.isArray(data.stats)
+      ? data.stats : {};
+    stats = {
+      health: clampStat(s.health ?? 100),
+      hunger: clampStat(s.hunger ?? 80),
+      joy:    clampStat(s.joy    ?? 80),
+      clean:  clampStat(s.clean  ?? 100)
+    };
+    isSick = data.isSick === true;
+
+    const savedAt = Number(data.savedAt);
+    if (Number.isFinite(savedAt) && savedAt > 0 && savedAt <= Date.now()) {
+      const elapsedSec = Math.max(0, (Date.now() - savedAt) / 1000);
+      const cappedSec = Math.min(elapsedSec, 24 * 60 * 60);
+      applyOfflineProgression(cappedSec);
+    }
+    return true;
   }
 
   function applyOfflineProgression(seconds) {
@@ -2307,12 +2335,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnSaveRename.addEventListener('click', () => {
-    const inputName = document.getElementById('input-turtle-name').value.trim();
-    if (inputName.length > 0) {
-      turtleName = inputName;
-    } else {
-      turtleName = 'Shelly';
-    }
+    const raw = document.getElementById('input-turtle-name').value;
+    turtleName = sanitizeName(raw);
     
     modals.rename.classList.add('hidden');
     
