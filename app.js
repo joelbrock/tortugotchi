@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     "Always maintain a minimum distance of 10 feet (3 meters) from sea turtles on land.",
     "Crowding sea turtles causes them severe stress and can disrupt their natural nesting or resting behaviors.",
     "Do not use flash photography near sea turtles; the bright flash disorients them and can disrupt nesting mothers.",
-    "Filing in beach holes and removing beach chairs prevents hatchlings from getting trapped on their way to the ocean."
+    "Filling in beach holes and removing beach chairs prevents hatchlings from getting trapped on their way to the ocean."
   ];
 
   const PREDATOR_EMOJIS = ['🦀', '🦅', '🦝'];
@@ -118,6 +118,64 @@ document.addEventListener('DOMContentLoaded', () => {
     eating: document.getElementById('turtle-mouth-eating'),
     sad: document.getElementById('turtle-mouth-sad')
   };
+
+  // ==========================================
+  // AUDIO: Turtle voice lines + ambient water SFX
+  // ==========================================
+  const MEDIA_PATH = 'media/';
+
+  // Voice lines keyed to the speech bubble they accompany (file name → trigger).
+  const TURT_VOX = {
+    deepBlue:        'turtvox001_another_day_in_the_deep_blue.m4a',
+    bestHuman:       'turtvox002_best_human_ever.m4a',
+    bittenShell:     'turtvox003_bitten_shell_but_ok.m4a',
+    somebodysComing: 'turtvox004_somebodys_coming.m4a',
+    ateBagToxic:     'turtvox005_ate_a_bag_toxic.m4a',
+    propellerStrike: 'turtvox006_propeller_strike_fatal_wound.m4a'
+  };
+
+  const WATER_SFX = [
+    'water_sfx_001.m4a',
+    'water_sfx_002.m4a',
+    'water_sfx_003.m4a'
+  ];
+
+  // Play a single turtle voice line. Autoplay is allowed because the player has
+  // already tapped through the start screen before any voice line fires.
+  let currentVoice = null;
+  function playVoice(key) {
+    const file = TURT_VOX[key];
+    if (!file) return;
+    try {
+      if (currentVoice) currentVoice.pause();
+      currentVoice = new Audio(MEDIA_PATH + file);
+      currentVoice.volume = 0.9;
+      currentVoice.play().catch(() => {});
+    } catch (e) { /* audio unsupported */ }
+  }
+
+  // Ambient underwater sound — loops continuously through the water SFX clips
+  // for the whole time the player is in the ocean scene.
+  let ambientAudio = null;
+  let ambientIndex = 0;
+  function startAmbientWater() {
+    if (ambientAudio) return;
+    ambientIndex = 0;
+    ambientAudio = new Audio(MEDIA_PATH + WATER_SFX[0]);
+    ambientAudio.volume = 0.3;
+    ambientAudio.addEventListener('ended', () => {
+      if (!ambientAudio) return;
+      ambientIndex = (ambientIndex + 1) % WATER_SFX.length;
+      ambientAudio.src = MEDIA_PATH + WATER_SFX[ambientIndex];
+      ambientAudio.play().catch(() => {});
+    });
+    ambientAudio.play().catch(() => {});
+  }
+  function stopAmbientWater() {
+    if (!ambientAudio) return;
+    ambientAudio.pause();
+    ambientAudio = null;
+  }
 
   // Buttons
   const btnStartGame = document.getElementById('btn-start-game');
@@ -533,10 +591,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentState !== STATES.OCEAN) return;
       spawnAmbientBubble();
     }, 1200);
+
+    // 7. Ambient underwater sound for the ocean scene
+    startAmbientWater();
   }
 
   function clearOceanLoops() {
     Object.values(oceanLoops).forEach(loop => clearInterval(loop));
+    stopAmbientWater();
   }
 
   // ==========================================
@@ -568,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function sanitizeName(n) {
     if (typeof n !== 'string') return 'Shelly';
     // Strip control chars and HTML-relevant punctuation; cap at 12 like the input.
-    const cleaned = n.replace(/[ -<>"'`\\]/g, '').trim().slice(0, 12);
+    const cleaned = n.replace(/[\x00-\x1f<>"'`\\]/g, '').trim().slice(0, 12);
     return cleaned.length ? cleaned : 'Shelly';
   }
 
@@ -1227,7 +1289,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Dialog bubble
-  function triggerThoughtBubble(text, duration = 3000) {
+  function triggerThoughtBubble(text, duration = 3000, voice = null) {
+    if (voice) playVoice(voice);
     thoughtText.textContent = text;
     thoughtBubble.classList.remove('hidden');
     
@@ -1754,7 +1817,7 @@ document.addEventListener('DOMContentLoaded', () => {
           stats.joy = Math.max(0, stats.joy - 20);
           setEyeState('dizzy');
           setMouthState('sad');
-          triggerThoughtBubble("Ate a bag... toxic! 🤢🛍️", 4000);
+          triggerThoughtBubble("Ate a bag... toxic! 🤢🛍️", 4000, 'ateBagToxic');
           updateStatBars();
           
           screens.ocean.classList.add('shake-element');
@@ -1971,7 +2034,7 @@ document.addEventListener('DOMContentLoaded', () => {
       stats.health = Math.max(0, stats.health - 45);
       setEyeState('dizzy');
       setMouthState('sad');
-      triggerThoughtBubble("Propeller strike! Fatal wounds! 🚢💥", 4000);
+      triggerThoughtBubble("Propeller strike! Fatal wounds! 🚢💥", 4000, 'propellerStrike');
       
       screens.ocean.classList.add('shake-element');
       setTimeout(() => {
@@ -1994,7 +2057,7 @@ document.addEventListener('DOMContentLoaded', () => {
     turtleContainer.classList.add('predator-alert');
     setEyeState('normal');
     setMouthState('sad');
-    triggerThoughtBubble("Something's coming! 😨", 1800);
+    triggerThoughtBubble("Something's coming! 😨", 1800, 'somebodysComing');
     setTimeout(() => {
       // Stay in alert until QTE resolves; cleanup happens in resolveSharkQte
     }, 100);
@@ -2086,7 +2149,7 @@ document.addEventListener('DOMContentLoaded', () => {
       stats.health = Math.max(0, stats.health - 8); // Minor shield bump damage
       stats.joy = Math.max(0, stats.joy - 15);
       setEyeState('normal');
-      triggerThoughtBubble("Bitten shell, but okay! 🛡️🦈");
+      triggerThoughtBubble("Bitten shell, but okay! 🛡️🦈", 3000, 'bittenShell');
     } else {
       // Exposed shark bite
       stats.health = Math.max(0, stats.health - 50);
@@ -2395,7 +2458,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setEyeState('normal');
       if (rubCount >= 3) {
         const thoughts = ["Hehe that tickles! ✨", "More please! 💕", "Best human ever! 🥰", "Hehehehe! 😆"];
-        triggerThoughtBubble(thoughts[Math.floor(Math.random() * thoughts.length)], 1800);
+        const pick = thoughts[Math.floor(Math.random() * thoughts.length)];
+        triggerThoughtBubble(pick, 1800, pick.startsWith('Best human') ? 'bestHuman' : null);
         stats.joy = Math.min(100, stats.joy + 5);
         updateStatBars();
       }
@@ -2422,7 +2486,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // IDLE BEHAVIORS — turtle does adorable things on its own
   // ==========================================
-  const IDLE_BEHAVIORS = ['blink', 'bubbles', 'flap', 'lookAround', 'roll', 'yawn'];
+  const IDLE_BEHAVIORS = ['blink', 'bubbles', 'flap', 'lookAround', 'roll', 'yawn', 'muse'];
 
   function triggerIdleBehavior() {
     // Don't interrupt if turtle is being interacted with or unhappy/sick
@@ -2474,6 +2538,10 @@ document.addEventListener('DOMContentLoaded', () => {
           setEyeState('normal');
         }, 800);
         cleanup(900);
+        break;
+      case 'muse':
+        triggerThoughtBubble("Another day in the deep blue... 🌊", 2600, 'deepBlue');
+        cleanup(2700);
         break;
     }
   }

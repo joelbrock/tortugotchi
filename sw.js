@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tortugotchi-v11';
+const CACHE_NAME = 'tortugotchi-v12';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,16 @@ const ASSETS = [
   './app.js',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './media/turtvox001_another_day_in_the_deep_blue.m4a',
+  './media/turtvox002_best_human_ever.m4a',
+  './media/turtvox003_bitten_shell_but_ok.m4a',
+  './media/turtvox004_somebodys_coming.m4a',
+  './media/turtvox005_ate_a_bag_toxic.m4a',
+  './media/turtvox006_propeller_strike_fatal_wound.m4a',
+  './media/water_sfx_001.m4a',
+  './media/water_sfx_002.m4a',
+  './media/water_sfx_003.m4a'
 ];
 
 self.addEventListener('install', (e) => {
