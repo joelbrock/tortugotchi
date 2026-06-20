@@ -131,13 +131,24 @@ document.addEventListener('DOMContentLoaded', () => {
     bittenShell:     'turtvox003_bitten_shell_but_ok.m4a',
     somebodysComing: 'turtvox004_somebodys_coming.m4a',
     ateBagToxic:     'turtvox005_ate_a_bag_toxic.m4a',
-    propellerStrike: 'turtvox006_propeller_strike_fatal_wound.m4a'
+    propellerStrike: 'turtvox006_propeller_strike_fatal_wound.m4a',
+    heehee:          'turtvox006_heeheehee.m4a',
+    morePlease:      'turtvox008_more_please.m4a',
+    hehe:            'turtvox09_hehe_that_tickles.m4a',
+    yummySeagrass:   'turtvox011_yummy_seagrass.m4a',
+    letsPlay:        'turtvox012_another_turtle_lets_play.m4a',
+    swimSafe:        'turtvox013_swim_safe_friend.m4a',
+    applyingSalve:   'turtvox014_applying_salve.m4a',
+    grewALittle:     'turtvox15_I_think_I_grew_a_little.m4a',
+    crunchyCrab:     'turtvox016_crunchy_crab.m4a',
+    softJellyfish:   'turtvox017_soft_jellyfish.m4a'
   };
 
   const WATER_SFX = [
     'water_sfx_001.m4a',
     'water_sfx_002.m4a',
-    'water_sfx_003.m4a'
+    'water_sfx_003.m4a',
+    'turtvox008_glub_glub_glub.m4a'
   ];
 
   // Play a single turtle voice line. Autoplay is allowed because the player has
@@ -549,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         turtleAgeVal.textContent = formatAge(turtleAge);
         applyGrowthStage();
         if (wholeDays > 0 && Math.random() > 0.7) {
-          triggerThoughtBubble(getGrowthThought(), 2200);
+          triggerThoughtBubble(getGrowthThought(), 2200, 'grewALittle');
         }
       }
 
@@ -1545,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStatBars();
     setEyeState('happy');
     setMouthState('normal');
-    triggerThoughtBubble(info.greeting, 2200);
+    triggerThoughtBubble(info.greeting, 2200, 'letsPlay');
 
     // Random darting motion around the playpen
     const pen = oceanPlaypen.getBoundingClientRect();
@@ -1613,7 +1624,7 @@ document.addEventListener('DOMContentLoaded', () => {
       stats.joy = Math.min(100, stats.joy + Math.min(15, highFives * 2));
       updateStatBars();
     }
-    triggerThoughtBubble(info.farewell, 1800);
+    triggerThoughtBubble(info.farewell, 1800, 'swimSafe');
     setTimeout(() => setEyeState('normal'), 1200);
     const m = activePlaymate;
     activePlaymate = null;
@@ -1631,7 +1642,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => setEyeState('normal'), 2000);
     } else if (stats.health < 80) {
       stats.health = Math.min(100, stats.health + 20);
-      triggerThoughtBubble("Applying salve... 🩹");
+      triggerThoughtBubble("Applying salve... 🩹", 3000, 'applyingSalve');
     } else {
       triggerThoughtBubble("I feel great! 🐢");
     }
@@ -1695,17 +1706,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (foodType === 'seagrass' && turtleSpecies === 'green') {
         stats.hunger = Math.min(100, stats.hunger + 30);
         stats.joy = Math.min(100, stats.joy + 10);
-        triggerThoughtBubble("Yummy seagrass! 🌿");
+        triggerThoughtBubble("Yummy seagrass! 🌿", 3000, 'yummySeagrass');
         setEyeState('happy');
       } else if (foodType === 'crabs' && turtleSpecies === 'loggerhead') {
         stats.hunger = Math.min(100, stats.hunger + 30);
         stats.joy = Math.min(100, stats.joy + 10);
-        triggerThoughtBubble("Crunchy crab! 🦀");
+        triggerThoughtBubble("Crunchy crab! 🦀", 3000, 'crunchyCrab');
         setEyeState('happy');
       } else if (foodType === 'jellyfish' && turtleSpecies === 'leatherback') {
         stats.hunger = Math.min(100, stats.hunger + 30);
         stats.joy = Math.min(100, stats.joy + 10);
-        triggerThoughtBubble("Soft jellyfish! 🪼");
+        triggerThoughtBubble("Soft jellyfish! 🪼", 3000, 'softJellyfish');
         setEyeState('happy');
       } else {
         stats.hunger = Math.min(100, stats.hunger + 12);
@@ -2457,9 +2468,14 @@ document.addEventListener('DOMContentLoaded', () => {
       turtleContainer.classList.remove('being-tickled');
       setEyeState('normal');
       if (rubCount >= 3) {
-        const thoughts = ["Hehe that tickles! ✨", "More please! 💕", "Best human ever! 🥰", "Hehehehe! 😆"];
-        const pick = thoughts[Math.floor(Math.random() * thoughts.length)];
-        triggerThoughtBubble(pick, 1800, pick.startsWith('Best human') ? 'bestHuman' : null);
+        const tickleThoughts = [
+          { text: "Hehe that tickles! ✨", voice: 'hehe' },
+          { text: "More please! 💕",      voice: 'morePlease' },
+          { text: "Best human ever! 🥰",  voice: 'bestHuman' },
+          { text: "Hehehehe! 😆",         voice: 'heehee' }
+        ];
+        const pick = tickleThoughts[Math.floor(Math.random() * tickleThoughts.length)];
+        triggerThoughtBubble(pick.text, 1800, pick.voice);
         stats.joy = Math.min(100, stats.joy + 5);
         updateStatBars();
       }

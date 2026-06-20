@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tortugotchi-v12';
+const CACHE_NAME = 'tortugotchi-v13';
 const ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,17 @@ const ASSETS = [
   './media/turtvox004_somebodys_coming.m4a',
   './media/turtvox005_ate_a_bag_toxic.m4a',
   './media/turtvox006_propeller_strike_fatal_wound.m4a',
+  './media/turtvox006_heeheehee.m4a',
+  './media/turtvox008_more_please.m4a',
+  './media/turtvox008_glub_glub_glub.m4a',
+  './media/turtvox09_hehe_that_tickles.m4a',
+  './media/turtvox011_yummy_seagrass.m4a',
+  './media/turtvox012_another_turtle_lets_play.m4a',
+  './media/turtvox013_swim_safe_friend.m4a',
+  './media/turtvox014_applying_salve.m4a',
+  './media/turtvox15_I_think_I_grew_a_little.m4a',
+  './media/turtvox016_crunchy_crab.m4a',
+  './media/turtvox017_soft_jellyfish.m4a',
   './media/water_sfx_001.m4a',
   './media/water_sfx_002.m4a',
   './media/water_sfx_003.m4a'
