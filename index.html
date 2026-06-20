@@ -108,6 +108,9 @@
           </label>
         </div>
 
+        <label for="input-turtle-name-start" class="intro-action"><strong>Name your turtle:</strong></label>
+        <input type="text" id="input-turtle-name-start" maxlength="12" placeholder="Shelly" class="text-input">
+
         <button id="btn-start-game" class="btn-primary btn-pulse">Start Conservation Game</button>
       </div>
 
@@ -530,7 +533,7 @@
 
         <!-- HUD Alerts -->
         <div class="beaching-instructions-card">
-          <p>💤 Shelly has beached to rest and digest. <strong>Ignorant tourists are trying to crowd closer for selfies!</strong></p>
+          <p>💤 <span id="beaching-turtle-name">Shelly</span> has beached to rest and digest. <strong>Ignorant tourists are trying to crowd closer for selfies!</strong></p>
           <p class="text-accent"><strong>Tap tourists to push them back outside the 10-foot boundary!</strong></p>
         </div>
       </div>
@@ -602,7 +605,7 @@
 
       <div id="bonus-info-card" class="bonus-box hidden">
         <h4>🎉 Conservation Goodies Awarded!</h4>
-        <p>Superb beach management! Since you beat the unmanaged average of 25% (> 5 hatchlings), Shelly starts the ocean journey with: <strong>+20 Joy</strong>, <strong>+20 Fullness</strong>, and a **+20 Health** head-start!</p>
+        <p>Superb beach management! Since you beat the unmanaged average of 25% (> 5 hatchlings), <span id="bonus-turtle-name">Shelly</span> starts the ocean journey with: <strong>+20 Joy</strong>, <strong>+20 Fullness</strong>, and a **+20 Health** head-start!</p>
       </div>
 
       <button id="btn-migration-continue" class="btn-primary">Continue to Ocean Journey</button>

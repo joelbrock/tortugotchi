@@ -205,6 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnHeal = document.getElementById('btn-action-heal');
   const feedDrawer = document.getElementById('feed-options-drawer');
 
+  // Name inputs / dynamic name labels
+  const inputTurtleNameStart = document.getElementById('input-turtle-name-start');
+  const beachingTurtleName = document.getElementById('beaching-turtle-name');
+  const bonusTurtleName = document.getElementById('bonus-turtle-name');
+
   // HUD Outputs
   const displayTurtleName = document.getElementById('display-turtle-name');
   const displayTurtleSpecies = document.getElementById('display-turtle-species');
@@ -1248,6 +1253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bonusInfoCard.classList.add('hidden');
       }
 
+      bonusTurtleName.textContent = turtleName;
       modals.migrationSuccess.classList.remove('hidden');
     } else {
       // Fail! Game over
@@ -2185,6 +2191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 9. BEACHING / TOURIST SHIELD EVENT
   // ==========================================
   function initBeachingPhase() {
+    beachingTurtleName.textContent = turtleName;
     beachingProgress = 0;
     beachingProgressFill.style.width = '0%';
     beachingProgressText.textContent = '0%';
@@ -2384,6 +2391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Start Conservation Game
   btnStartGame.addEventListener('click', () => {
+    turtleName = sanitizeName(inputTurtleNameStart.value);
     changeState(STATES.BEACH);
   });
 
@@ -2397,14 +2405,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('beach-tutorial-overlay').classList.add('hidden');
   });
 
-  // Migration Success Continue Action
+  // Migration Success Continue Action — the turtle was already named at the
+  // start, so head straight into the ocean.
   btnMigrationContinue.addEventListener('click', () => {
     modals.migrationSuccess.classList.add('hidden');
-    modals.rename.classList.remove('hidden');
+    changeState(STATES.OCEAN);
   });
 
   // Rename Turtle Action
   btnRenameTurtle.addEventListener('click', () => {
+    document.getElementById('input-turtle-name').value = turtleName;
     modals.rename.classList.remove('hidden');
   });
 
