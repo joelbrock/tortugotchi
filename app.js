@@ -569,7 +569,8 @@ document.addEventListener('DOMContentLoaded', () => {
         turtleAgeVal.textContent = formatAge(turtleAge);
         applyGrowthStage();
         if (wholeDays > 0 && Math.random() > 0.7) {
-          triggerThoughtBubble(getGrowthThought(), 2200, 'grewALittle');
+          const growth = getGrowthThought();
+          triggerThoughtBubble(growth.text, 2200, growth.voice);
         }
       }
 
@@ -771,11 +772,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getGrowthThought() {
+    // Each line carries the voice clip that matches it (null = no audio).
     const thoughts = [
-      "I think I grew a little! 🌱",
-      "Getting stronger! 💪",
-      "My shell feels bigger! 🐢",
-      "Another day in the deep blue 🌊"
+      { text: "I think I grew a little! 🌱", voice: 'grewALittle' },
+      { text: "Getting stronger! 💪",        voice: null },
+      { text: "My shell feels bigger! 🐢",   voice: null },
+      { text: "Another day in the deep blue 🌊", voice: 'deepBlue' }
     ];
     return thoughts[Math.floor(Math.random() * thoughts.length)];
   }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tortugotchi-v14';
+const CACHE_NAME = 'tortugotchi-v15';
 const ASSETS = [
   './',
   './index.html',
