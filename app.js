@@ -61,6 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let beachingProgress = 0; // 0 to 100
   let beachingInterval = null;
   let beachingTouristsInterval = null;
+  // Earliest time (ms) the next beaching event may trigger. Keeps beaching to
+  // an occasional event rather than something that interrupts every minute.
+  const BEACHING_COOLDOWN_MS = 5 * 60 * 1000;
+  let nextBeachingAllowedAt = 0;
 
   // ==========================================
   // 2. DOM ELEMENTS
@@ -571,9 +575,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       saveProgress();
 
-      // Beaching happens on a regular cycle for healthy adults — roughly
-      // every few minutes of active play.
-      if (turtleAge > 7 && stats.health > 50 && Math.random() < 0.18) {
+      // Beaching is an occasional event for healthy adults. A cooldown plus a
+      // low per-tick chance keeps it to roughly once every several minutes
+      // rather than interrupting play every minute.
+      if (turtleAge > 7 && stats.health > 50 &&
+          Date.now() >= nextBeachingAllowedAt && Math.random() < 0.04) {
+        nextBeachingAllowedAt = Date.now() + BEACHING_COOLDOWN_MS;
         changeState(STATES.BEACHING);
       }
     }, 10000);
