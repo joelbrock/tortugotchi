@@ -148,16 +148,22 @@ document.addEventListener('DOMContentLoaded', () => {
     softJellyfish:   'turtvox017_soft_jellyfish.m4a'
   };
 
+  // The glub clip is a turtle vocalisation, so it must never overlap a voice
+  // line; the plain water clips are fine to play underneath voices.
+  const GLUB_SFX = 'turtvox008_glub_glub_glub.m4a';
   const WATER_SFX = [
     'water_sfx_001.m4a',
     'water_sfx_002.m4a',
     'water_sfx_003.m4a',
-    'turtvox008_glub_glub_glub.m4a'
+    GLUB_SFX
   ];
 
   // Play a single turtle voice line. Autoplay is allowed because the player has
   // already tapped through the start screen before any voice line fires.
   let currentVoice = null;
+  function isVoicePlaying() {
+    return !!(currentVoice && !currentVoice.paused && !currentVoice.ended);
+  }
   function playVoice(key) {
     const file = TURT_VOX[key];
     if (!file) return;
@@ -166,6 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
       currentVoice = new Audio(MEDIA_PATH + file);
       currentVoice.volume = 0.9;
       currentVoice.play().catch(() => {});
+      // If the ambient loop is currently on the glub clip, skip it forward so
+      // the glub never plays on top of this voice line.
+      if (ambientAudio && WATER_SFX[ambientIndex] === GLUB_SFX) {
+        ambientIndex = (ambientIndex + 1) % WATER_SFX.length;
+        playAmbientClip();
+      }
     } catch (e) { /* audio unsupported */ }
   }
 
@@ -173,18 +185,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // for the whole time the player is in the ocean scene.
   let ambientAudio = null;
   let ambientIndex = 0;
+  function playAmbientClip() {
+    if (!ambientAudio) return;
+    // Never start the glub clip while a voice line is playing — advance past it.
+    let guard = 0;
+    while (WATER_SFX[ambientIndex] === GLUB_SFX && isVoicePlaying() && guard < WATER_SFX.length) {
+      ambientIndex = (ambientIndex + 1) % WATER_SFX.length;
+      guard++;
+    }
+    ambientAudio.src = MEDIA_PATH + WATER_SFX[ambientIndex];
+    ambientAudio.play().catch(() => {});
+  }
   function startAmbientWater() {
     if (ambientAudio) return;
     ambientIndex = 0;
-    ambientAudio = new Audio(MEDIA_PATH + WATER_SFX[0]);
+    ambientAudio = new Audio();
     ambientAudio.volume = 0.3;
     ambientAudio.addEventListener('ended', () => {
       if (!ambientAudio) return;
       ambientIndex = (ambientIndex + 1) % WATER_SFX.length;
-      ambientAudio.src = MEDIA_PATH + WATER_SFX[ambientIndex];
-      ambientAudio.play().catch(() => {});
+      playAmbientClip();
     });
-    ambientAudio.play().catch(() => {});
+    playAmbientClip();
   }
   function stopAmbientWater() {
     if (!ambientAudio) return;
@@ -645,6 +667,29 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pagehide', saveProgress);
   window.addEventListener('beforeunload', saveProgress);
 
+  // Suspend gameplay whenever the tab/window loses focus or is hidden, so the
+  // turtle never decays (or dies) while the player is away. Stats and growth
+  // simply freeze and resume untouched when the player returns. Only the ocean
+  // care phase runs the long-lived decay loops, so that is what we pause.
+  let oceanSuspended = false;
+  function suspendOcean() {
+    if (currentState !== STATES.OCEAN || oceanSuspended) return;
+    oceanSuspended = true;
+    saveProgress();
+    clearOceanLoops();
+  }
+  function resumeOcean() {
+    if (!oceanSuspended) return;
+    oceanSuspended = false;
+    if (currentState === STATES.OCEAN) startOceanLoops();
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) suspendOcean();
+    else resumeOcean();
+  });
+  window.addEventListener('blur', suspendOcean);
+  window.addEventListener('focus', resumeOcean);
+
   const ALLOWED_SPECIES = ['green', 'loggerhead', 'leatherback'];
   function clampStat(n) {
     const v = Number(n);
@@ -689,32 +734,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     isSick = data.isSick === true;
 
-    const savedAt = Number(data.savedAt);
-    if (Number.isFinite(savedAt) && savedAt > 0 && savedAt <= Date.now()) {
-      const elapsedSec = Math.max(0, (Date.now() - savedAt) / 1000);
-      const cappedSec = Math.min(elapsedSec, 24 * 60 * 60);
-      applyOfflineProgression(cappedSec);
-    }
+    // No offline catch-up decay: gameplay is suspended whenever the tab is not
+    // focused (see the visibility/focus handlers), so a turtle left alone — for
+    // minutes or months — is simply paused and resumes exactly as it was left.
+    // This is what lets turtles live and grow over a very long real-world span.
     return true;
-  }
-
-  function applyOfflineProgression(seconds) {
-    // Mirror the per-second rates from the decay loop
-    stats.hunger = Math.max(0, stats.hunger - 0.15 * seconds);
-    stats.joy   = Math.max(0, stats.joy   - 0.18 * seconds);
-    stats.clean = Math.max(0, stats.clean - 0.08 * seconds);
-
-    // Approximate health behavior over the elapsed window
-    const avgEnd = (stats.hunger + stats.joy + stats.clean) / 3;
-    if (avgEnd < 20) {
-      stats.health = Math.max(0, stats.health - 0.4 * seconds * 0.5); // gradual neglect damage
-    } else if (avgEnd > 60) {
-      stats.health = Math.min(100, stats.health + 0.05 * seconds * 0.2);
-    }
-
-    // Award age progression for the healthy portion of the absence
-    const offlineDays = computeAgeGain(seconds);
-    turtleAge += Math.floor(offlineDays);
   }
 
   // ==========================================
@@ -1536,6 +1560,9 @@ document.addEventListener('DOMContentLoaded', () => {
           name: 'shrimp friend',
           greeting: "A shrimp friend! Let's chase! 🦐",
           farewell: "Bye shrimp pal! 👋",
+          // No matching voice clip for the shrimp lines.
+          greetingVoice: null,
+          farewellVoice: null,
           color: 'rgba(255, 140, 120, 0.9)'
         };
       case 'leatherback':
@@ -1544,6 +1571,9 @@ document.addEventListener('DOMContentLoaded', () => {
           name: 'squid buddy',
           greeting: "Glowing squid buddy! Deep dive! 🦑",
           farewell: "See you in the depths! 🌊",
+          // No matching voice clip for the squid lines.
+          greetingVoice: null,
+          farewellVoice: null,
           color: 'rgba(180, 130, 255, 0.95)'
         };
       case 'green':
@@ -1553,6 +1583,9 @@ document.addEventListener('DOMContentLoaded', () => {
           name: 'turtle pal',
           greeting: "Another turtle! Let's play! 🐢",
           farewell: "Swim safe, friend! 💚",
+          // The letsPlay/swimSafe clips say "another turtle"/"swim safe friend".
+          greetingVoice: 'letsPlay',
+          farewellVoice: 'swimSafe',
           color: 'rgba(120, 200, 160, 0.95)'
         };
     }
@@ -1571,7 +1604,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStatBars();
     setEyeState('happy');
     setMouthState('normal');
-    triggerThoughtBubble(info.greeting, 2200, 'letsPlay');
+    triggerThoughtBubble(info.greeting, 2200, info.greetingVoice);
 
     // Random darting motion around the playpen
     const pen = oceanPlaypen.getBoundingClientRect();
@@ -1639,7 +1672,7 @@ document.addEventListener('DOMContentLoaded', () => {
       stats.joy = Math.min(100, stats.joy + Math.min(15, highFives * 2));
       updateStatBars();
     }
-    triggerThoughtBubble(info.farewell, 1800, 'swimSafe');
+    triggerThoughtBubble(info.farewell, 1800, info.farewellVoice);
     setTimeout(() => setEyeState('normal'), 1200);
     const m = activePlaymate;
     activePlaymate = null;
