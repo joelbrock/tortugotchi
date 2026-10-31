@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tortugotchi-v17';
+const CACHE_NAME = 'tortugotchi-v18';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,8 @@ const ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './fonts/outfit-latin.woff2',
+  './fonts/outfit-latin-ext.woff2',
   './media/turtvox001_another_day_in_the_deep_blue.m4a',
   './media/turtvox002_best_human_ever.m4a',
   './media/turtvox003_bitten_shell_but_ok.m4a',
